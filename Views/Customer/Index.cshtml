@@ -1,0 +1,206 @@
+﻿@model BarberShopApp.Models.Customer
+@{ 
+    Layout = null; 
+}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Trang chủ - BarberMate</title>
+
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary-gold: #ff9d00;
+            --dark-bg: #121212;
+            --card-bg: #1e1e1e;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--dark-bg);
+            color: white;
+        }
+
+        /* NAVBAR */
+        .navbar-custom {
+            background-color: #000;
+            padding: 15px 30px;
+            border-bottom: 2px solid var(--primary-gold);
+        }
+
+        .navbar-brand {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            color: white !important;
+        }
+        .navbar-brand span { color: var(--primary-gold); }
+
+        .btn-logout {
+            border: 1px solid var(--primary-gold);
+            color: var(--primary-gold);
+            padding: 5px 20px;
+            border-radius: 20px;
+            text-decoration: none;
+            transition: 0.3s;
+        }
+        .btn-logout:hover {
+            background-color: var(--primary-gold);
+            color: black;
+        }
+
+        /* HERO DASHBOARD */
+        .dashboard-hero {
+            background: linear-gradient(rgba(18,18,18,0.7), rgba(18,18,18,0.9)), url('https://images.unsplash.com/photo-1599351431202-1e0f0137899a?q=80&w=2072&auto=format&fit=crop') center/cover;
+            padding: 60px 0;
+            border-bottom: 1px solid #333;
+        }
+
+        .user-tier {
+            display: inline-block;
+            background: var(--primary-gold);
+            color: black;
+            padding: 3px 15px;
+            border-radius: 15px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+        }
+
+        /* CARDS */
+        .custom-card {
+            background-color: var(--card-bg);
+            border: none;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            height: 100%;
+            transition: transform 0.3s;
+        }
+        .custom-card:hover { transform: translateY(-5px); }
+        
+        .card-title-gold {
+            color: var(--primary-gold);
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #333;
+            padding-bottom: 10px;
+        }
+
+        .btn-book-now {
+            background-color: var(--primary-gold);
+            color: black;
+            font-weight: 600;
+            width: 100%;
+            padding: 15px;
+            font-size: 1.1rem;
+            border: none;
+            border-radius: 5px;
+            transition: 0.3s;
+        }
+        .btn-book-now:hover {
+            background-color: white;
+            color: black;
+            transform: scale(1.02);
+        }
+
+        .table-dark-custom { color: #ccc; }
+        .table-dark-custom th { color: var(--primary-gold); border-bottom: 1px solid #444; }
+        .table-dark-custom td { border-bottom: 1px solid #333; padding: 15px 10px; }
+        .status-badge { padding: 5px 12px; border-radius: 20px; font-size: 0.85rem; }
+        .status-pending { background-color: #f39c12; color: black; }
+        .status-completed { background-color: #27ae60; color: white; }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-custom">
+        <div class="container">
+            <a class="navbar-brand" href="#">BarberShop<span>System</span></a>
+            <div class="d-flex align-items-center">
+                <span class="text-light me-4"><i class="fa-regular fa-bell"></i></span>
+                <a asp-controller="Account" asp-action="Login" class="btn-logout">Đăng xuất</a>
+            </div>
+        </div>
+    </nav>
+
+    <section class="dashboard-hero">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <div class="user-tier"><i class="fa-solid fa-crown me-2"></i>@Model.CustomerTier</div>
+                    <h1 class="display-5" style="font-family: 'Playfair Display', serif;">Xin chào, @Model.FullName</h1>
+                    <p class="text-secondary mt-2"><i class="fa-solid fa-phone me-2"></i>@Model.Phone</p>
+                </div>
+                <div class="col-md-4 text-md-end mt-4 mt-md-0">
+                    <h3 class="text-white mb-0">@Model.RewardPoints <span style="color: var(--primary-gold); font-size: 1.2rem;">Điểm</span></h3>
+                    <p class="text-secondary small">Tích lũy để nhận ưu đãi</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="container mt-5 mb-5">
+        <div class="row g-4">
+            
+            <div class="col-lg-8">
+                <div class="custom-card">
+                    <h3 class="card-title-gold"><i class="fa-regular fa-calendar-check me-2"></i> Lịch hẹn sắp tới</h3>
+                    
+                    <div class="d-flex justify-content-between align-items-center p-3 rounded" style="background-color: #2a2a2a; border-left: 4px solid var(--primary-gold);">
+                        <div>
+                            <h5 class="mb-1">Cắt tóc nam & Vuốt sáp</h5>
+                            <p class="mb-0 text-secondary"><i class="fa-solid fa-clock me-2"></i>Chưa có lịch hẹn mới</p>
+                        </div>
+                        <div>
+                            <span class="status-badge status-pending">Trống</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="custom-card text-center">
+                    <h3 class="card-title-gold">Cần tút lại vẻ đẹp?</h3>
+                    <p class="text-secondary mb-4">Chọn thợ yêu thích và khung giờ phù hợp với bạn ngay hôm nay.</p>
+                    <button class="btn-book-now"><i class="fa-solid fa-calendar-plus me-2"></i> ĐẶT LỊCH NGAY</button>
+                </div>
+            </div>
+
+            <div class="col-12">
+                <div class="custom-card mt-2">
+                    <h3 class="card-title-gold"><i class="fa-solid fa-clock-rotate-left me-2"></i> Lịch sử dịch vụ</h3>
+                    <div class="table-responsive">
+                        <table class="table table-borderless table-dark-custom w-100">
+                            <thead>
+                                <tr>
+                                    <th>Ngày</th>
+                                    <th>Dịch vụ</th>
+                                    <th>Thợ cắt</th>
+                                    <th>Tổng tiền</th>
+                                    <th>Trạng thái</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>--/--/----</td>
+                                    <td>Chưa có giao dịch</td>
+                                    <td>---</td>
+                                    <td>0 đ</td>
+                                    <td><span class="status-badge status-completed">N/A</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</body>
+</html>

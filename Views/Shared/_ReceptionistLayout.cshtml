@@ -1,0 +1,158 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Thu ngân — BarberMate</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --gold: #ff9d00;
+            --dark: #1a1a1a;
+            --danger-red: #dc2626;
+            --bg-page: #f0f2f5;
+            --border: #e2e8f0;
+        }
+
+        *, *::before, *::after { box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: var(--bg-page);
+            height: 100vh;
+            overflow: hidden;
+            margin: 0;
+        }
+
+        /* ── Navbar ─────────────────────────────────── */
+        .pos-nav {
+            background: var(--dark);
+            height: 52px;
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            gap: 8px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 2px solid var(--gold);
+        }
+        .pos-nav .brand {
+            font-weight: 700;
+            font-size: 17px;
+            color: #fff;
+            letter-spacing: 1px;
+            margin-right: 16px;
+            white-space: nowrap;
+        }
+        .pos-nav .brand span { color: var(--gold); }
+
+        /* Bill status badge — always visible in navbar */
+        .bill-status-badge {
+            font-size: 11px;
+            font-weight: 700;
+            padding: 3px 10px;
+            border-radius: 20px;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            flex-shrink: 0;
+        }
+        .bill-status-badge.drafting {
+            background: #fef3c7;
+            color: #92400e;
+            border: 1px solid #fde68a;
+        }
+        .bill-status-badge.paid {
+            background: #dcfce7;
+            color: #14532d;
+            border: 1px solid #bbf7d0;
+        }
+
+        /* Nav tabs */
+        .pos-nav-tabs {
+            display: flex;
+            gap: 2px;
+            margin-left: auto;
+            margin-right: 12px;
+        }
+        .nav-tab-btn {
+            background: transparent;
+            border: none;
+            color: rgba(255,255,255,0.55);
+            font-size: 13px;
+            font-weight: 500;
+            padding: 6px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: background 0.15s, color 0.15s;
+            text-decoration: none;
+        }
+        .nav-tab-btn:hover { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.85); }
+        .nav-tab-btn.active { background: rgba(255,157,0,0.15); color: var(--gold); }
+
+        .btn-logout-nav {
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.2);
+            color: rgba(255,255,255,0.6);
+            padding: 5px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: 0.2s;
+        }
+        .btn-logout-nav:hover { border-color: var(--danger-red); color: #fca5a5; }
+
+        /* ── Main container ──────────────────────────── */
+        .pos-body {
+            height: calc(100vh - 52px);
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body>
+
+<nav class="pos-nav">
+    <div class="brand">BARBER<span>MATE</span></div>
+
+    <!-- Trạng thái hóa đơn — luôn hiển thị, không cần vào tab mới biết -->
+    <span class="bill-status-badge drafting" id="global-bill-status">
+        <i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i>Đang lập hóa đơn
+    </span>
+
+    <div class="pos-nav-tabs">
+        <button class="nav-tab-btn active" onclick="switchTab(this, 'tab-thungan')">
+            <i class="fa-solid fa-cash-register"></i> Thu ngân
+        </button>
+        <button class="nav-tab-btn" onclick="switchTab(this, 'tab-lichhen')">
+            <i class="fa-regular fa-calendar-days"></i> Lịch hẹn
+        </button>
+        <button class="nav-tab-btn" onclick="switchTab(this, 'tab-khachhang')">
+            <i class="fa-solid fa-users"></i> Khách hàng
+        </button>
+    </div>
+
+    <a href="/" class="btn-logout-nav"><i class="bi bi-power"></i> Đăng xuất</a>
+</nav>
+
+<div class="pos-body">
+    @RenderBody()
+</div>
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script>
+    function switchTab(btn, tabId) {
+        document.querySelectorAll('.nav-tab-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('show', 'active'));
+        const target = document.getElementById(tabId);
+        if (target) target.classList.add('show', 'active');
+    }
+</script>
+@RenderSection("Scripts", required: false)
+</body>
+</html>

@@ -1,0 +1,95 @@
+﻿@{
+    Layout = "_AdminLayout";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Tổng quan cửa hàng</h2>
+    <span class="text-muted">Hôm nay, @DateTime.Now.ToString("dd/MM/yyyy")</span>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-md-4">
+        <div class="card stat-card p-3">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <h6 class="text-muted">Doanh thu ngày</h6>
+                    <h3 class="mb-0">@ViewBag.TotalRevenue</h3>
+                </div>
+                <div class="icon-box bg-primary bg-opacity-10 text-primary">
+                    <i class="bi bi-currency-dollar"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card stat-card p-3">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <h6 class="text-muted">Hóa đơn mới</h6>
+                    <h3 class="mb-0">@ViewBag.TotalBills</h3>
+                </div>
+                <div class="icon-box bg-success bg-opacity-10 text-success">
+                    <i class="bi bi-receipt"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card stat-card p-3">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <h6 class="text-muted">Thợ đang rảnh</h6>
+                    <h3 class="mb-0">@ViewBag.ActiveBarbers</h3>
+                </div>
+                <div class="icon-box bg-warning bg-opacity-10 text-warning">
+                    <i class="bi bi-person-check"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card stat-card p-4">
+            <h5>Phân tích doanh thu tuần</h5>
+            <canvas id="revenueChart" height="250"></canvas>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card stat-card p-4">
+            <h5>Trạng thái Barber (Real-time)</h5>
+            <ul class="list-group list-group-flush mt-3">
+                <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                    Anh Tú <span class="badge bg-danger rounded-pill">Đang bận</span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                    Trọng Nghĩa <span class="badge bg-success rounded-pill">Đang rảnh</span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                    Minh Chiến <span class="badge bg-success rounded-pill">Đang rảnh</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const ctx = document.getElementById('revenueChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7', 'CN'],
+                datasets: [{
+                    label: 'Doanh thu (VNĐ)',
+                    data: [1200000, 1900000, 1500000, 2500000, 2200000, 4500000, 5000000],
+                    borderColor: '#ff9d00',
+                    backgroundColor: 'rgba(255, 157, 0, 0.1)',
+                    fill: true,
+                    tension: 0.4
+                }]
+            }
+        });
+    </script>
+}

@@ -1,0 +1,544 @@
+﻿@{
+    Layout = "_ReceptionistLayout";
+}
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+:root {
+    --gold: #ff9d00;
+    --gold-dark: #cc7a00;
+    --dark: #1a1a1a;
+    --bg-page: #f0f2f5;
+    --bg-card: #ffffff;
+    --border: #e2e8f0;
+    --text-muted: #64748b;
+    --radius: 10px;
+    --success: #16a34a;
+    --danger: #dc2626;
+    --info: #0284c7;
+}
+
+.pos-grid {
+    display: grid;
+    grid-template-columns: 1fr 360px 230px;
+    height: 100%;
+    overflow: hidden;
+}
+
+/* ── VÙNG A: Menu ──────────────────────────────── */
+.zone-menu { background: var(--bg-page); display: flex; flex-direction: column; overflow: hidden; border-right: 1px solid var(--border); }
+.zone-menu-header { padding: 12px 16px 10px; background: var(--bg-card); border-bottom: 1px solid var(--border); flex-shrink: 0; }
+.zone-menu-scroll { overflow-y: auto; padding: 14px 16px; flex: 1; }
+
+.cat-pills { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+.cat-pill { cursor: pointer; padding: 5px 16px; border-radius: 20px; font-size: 13px; font-weight: 600; background: var(--bg-page); border: 1.5px solid var(--border); color: var(--text-muted); transition: 0.15s; user-select: none; }
+.cat-pill.active { background: var(--dark); color: #fff; border-color: var(--dark); }
+.cat-pill:hover:not(.active) { border-color: #94a3b8; }
+
+.search-box { position: relative; width: 100%; max-width: 280px; }
+.search-box i { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 12px; }
+.search-box input { width: 100%; padding: 7px 12px 7px 32px; border: 1.5px solid var(--border); border-radius: 20px; font-size: 13px; background: var(--bg-page); outline: none; transition: border-color 0.15s; }
+.search-box input:focus { border-color: var(--gold); }
+
+.service-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; }
+.svc-card { background: var(--bg-card); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 14px 10px 12px; cursor: pointer; text-align: center; transition: transform 0.15s, border-color 0.15s, box-shadow 0.15s; user-select: none; }
+.svc-card:hover { border-color: var(--gold); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(255,157,0,0.15); }
+.svc-card:active { transform: scale(0.97); }
+.svc-icon { width: 40px; height: 40px; border-radius: 50%; background: #fff7ed; display: flex; align-items: center; justify-content: center; margin: 0 auto 8px; font-size: 16px; color: var(--gold-dark); }
+.svc-name { font-size: 12px; font-weight: 600; color: #1e293b; margin-bottom: 4px; line-height: 1.3; }
+.svc-price { font-size: 14px; font-weight: 700; color: var(--success); }
+
+@@keyframes pop-in { 0% { transform: scale(0.93); opacity:0; } 100% { transform: scale(1); opacity:1; } }
+.svc-card.just-added { animation: pop-in 0.18s ease; }
+
+/* ── VÙNG B: Hóa đơn ────────────────────────────── */
+.zone-bill { background: var(--bg-card); display: flex; flex-direction: column; border-right: 1px solid var(--border); overflow: hidden; }
+.bill-header { padding: 12px 16px 10px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
+.bill-header-title { font-size: 14px; font-weight: 700; color: var(--dark); display: flex; align-items: center; gap: 8px; }
+
+.barber-section { padding: 10px 14px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+.field-label { font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 5px; }
+.barber-select { width: 100%; padding: 8px 10px; border: 1.5px solid var(--border); border-radius: 8px; font-size: 13px; font-weight: 600; color: var(--info); background: #f0f9ff; outline: none; cursor: pointer; transition: border-color 0.15s; }
+.barber-select:focus { border-color: var(--info); }
+
+.bill-items { flex: 1; overflow-y: auto; padding: 8px 10px; }
+.bill-empty { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: #cbd5e1; gap: 8px; font-size: 13px; }
+.bill-empty i { font-size: 32px; }
+
+.bill-row { display: flex; align-items: center; gap: 8px; padding: 8px; border-radius: 8px; margin-bottom: 4px; background: #f8fafc; border: 1px solid var(--border); }
+.bill-row-info { flex: 1; min-width: 0; }
+.item-name { font-size: 12px; font-weight: 600; color: #1e293b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bill-row-price { font-size: 12px; font-weight: 700; color: #1e293b; white-space: nowrap; flex-shrink: 0; }
+
+.qty-stepper { display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
+.qty-btn { width: 24px; height: 24px; border: 1.5px solid var(--border); border-radius: 5px; background: white; cursor: pointer; font-size: 14px; font-weight: 700; color: #475569; display: flex; align-items: center; justify-content: center; transition: 0.15s; line-height: 1; }
+.qty-btn:hover { border-color: var(--gold); color: var(--gold-dark); }
+.qty-val { font-size: 13px; font-weight: 700; min-width: 18px; text-align: center; }
+
+.btn-del-item { width: 26px; height: 26px; border: none; border-radius: 5px; background: transparent; color: #94a3b8; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.15s; flex-shrink: 0; font-size: 13px; }
+.btn-del-item:hover { background: #fee2e2; color: var(--danger); }
+
+/* TỔNG TIỀN — điểm nhấn thị giác lớn nhất */
+.bill-total-section { flex-shrink: 0; padding: 12px 14px; border-top: 2px solid var(--border); background: #fafafa; }
+.subtotal-row { display: flex; justify-content: space-between; font-size: 12px; color: var(--text-muted); margin-bottom: 3px; }
+.total-display { background: var(--dark); border-radius: 10px; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; margin-top: 8px; }
+.total-label { font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.55); text-transform: uppercase; letter-spacing: 0.5px; }
+.total-amount { font-size: 26px; font-weight: 800; color: var(--gold); line-height: 1; }
+
+/* ── VÙNG C: Thanh toán ─────────────────────────── */
+.zone-pay { background: #f8fafc; display: flex; flex-direction: column; overflow: hidden; }
+.pay-header { padding: 12px 14px 10px; border-bottom: 1px solid var(--border); font-size: 14px; font-weight: 700; color: var(--dark); flex-shrink: 0; }
+
+.customer-section { padding: 10px 14px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+.cust-input { width: 100%; padding: 7px 10px; border: 1.5px solid var(--border); border-radius: 7px; font-size: 12px; margin-bottom: 5px; outline: none; transition: border-color 0.15s; background: white; }
+.cust-input:focus { border-color: var(--gold); }
+
+.pay-methods { padding: 12px 14px; flex-shrink: 0; }
+.pay-method-btn { width: 100%; padding: 12px 14px; border: 2px solid var(--border); border-radius: 9px; background: white; font-size: 13px; font-weight: 700; color: #334155; cursor: pointer; text-align: left; display: flex; align-items: center; gap: 10px; margin-bottom: 7px; transition: 0.15s; }
+.pay-method-btn i { font-size: 16px; width: 20px; text-align: center; }
+.pay-method-btn:hover { border-color: #94a3b8; background: #f1f5f9; }
+.pay-method-btn.selected { border-color: var(--dark); background: var(--dark); color: white; }
+.pay-method-btn.selected i { color: var(--gold); }
+
+.pay-preview { margin: 0 14px 10px; background: #f0fdf4; border: 1.5px solid #86efac; border-radius: 9px; padding: 10px 12px; display: none; flex-shrink: 0; }
+.pay-preview.visible { display: block; }
+.pay-preview-label { font-size: 10px; font-weight: 700; color: #15803d; text-transform: uppercase; letter-spacing: 0.5px; }
+.pay-preview-amount { font-size: 20px; font-weight: 800; color: #14532d; }
+
+.pay-confirm-area { padding: 12px 14px; margin-top: auto; flex-shrink: 0; border-top: 1px solid var(--border); }
+.btn-confirm-pay { width: 100%; padding: 14px; background: var(--dark); color: var(--gold); border: none; border-radius: 9px; font-size: 14px; font-weight: 800; letter-spacing: 0.5px; cursor: pointer; transition: 0.15s; display: flex; align-items: center; justify-content: center; gap: 8px; }
+.btn-confirm-pay:hover:not(:disabled) { background: #2d2d2d; transform: translateY(-1px); }
+.btn-confirm-pay:disabled { opacity: 0.38; cursor: not-allowed; transform: none; }
+
+.btn-reset-bill { background: transparent; border: 1px solid var(--border); color: var(--text-muted); padding: 4px 10px; border-radius: 6px; font-size: 12px; cursor: pointer; transition: 0.15s; }
+.btn-reset-bill:hover { border-color: var(--danger); color: var(--danger); }
+
+/* ── Modal xác nhận (hành động nguy hiểm) ─────── */
+.confirm-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 9999; display: none; align-items: center; justify-content: center; }
+.confirm-overlay.open { display: flex; }
+.confirm-box { background: white; border-radius: 14px; padding: 28px 26px 20px; width: 300px; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.2); }
+.confirm-icon { font-size: 34px; color: var(--danger); margin-bottom: 10px; }
+.confirm-title { font-size: 16px; font-weight: 700; color: #1e293b; margin-bottom: 5px; }
+.confirm-msg { font-size: 12px; color: var(--text-muted); margin-bottom: 18px; }
+.confirm-actions { display: flex; gap: 10px; }
+.btn-cancel-confirm { flex: 1; padding: 11px; border: 1.5px solid var(--border); background: #1e293b; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer; color: #fff; transition: 0.15s; }
+.btn-cancel-confirm:hover { background: #334155; }
+.btn-do-confirm { flex: 0.7; padding: 11px; border: 1.5px solid #fca5a5; background: white; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; color: var(--danger); transition: 0.15s; }
+.btn-do-confirm:hover { background: #fee2e2; }
+
+/* ── Tabs phụ ─────────────────────────────────── */
+.tab-pane { display: none; height: 100%; }
+.tab-pane.show.active { display: block; }
+#tab-thungan { display: none; }
+#tab-thungan.show.active { display: grid !important; }
+
+.tab-scroll-wrapper { height: 100%; overflow-y: auto; padding: 18px; background: #f0f2f5; }
+.tab-card { background: white; border-radius: var(--radius); border: 1px solid var(--border); overflow: hidden; }
+.tab-table { width: 100%; border-collapse: collapse; }
+.tab-table th { padding: 9px 14px; font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; background: #f8fafc; border-bottom: 1px solid var(--border); text-align: left; }
+.tab-table td { padding: 11px 14px; font-size: 13px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
+.tab-table tbody tr:hover td { background: #f8fafc; }
+.tab-table tbody tr:last-child td { border-bottom: none; }
+
+.status-pill { display: inline-flex; align-items: center; gap: 4px; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+.status-waiting { background: #fef9c3; color: #854d0e; }
+.status-done { background: #dcfce7; color: #14532d; }
+</style>
+
+<!-- Modal: Xóa item -->
+<div class="confirm-overlay" id="deleteModal">
+    <div class="confirm-box">
+        <div class="confirm-icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
+        <div class="confirm-title">Xóa khỏi hóa đơn?</div>
+        <div class="confirm-msg" id="deleteModalMsg">Xóa mục này khỏi hóa đơn hiện tại.</div>
+        <div class="confirm-actions">
+            <button class="btn-cancel-confirm" onclick="closeDeleteModal()"><i class="fa-solid fa-arrow-left me-1"></i>Giữ lại</button>
+            <button class="btn-do-confirm" id="doDeleteBtn">Xóa</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Làm mới bill -->
+<div class="confirm-overlay" id="resetModal">
+    <div class="confirm-box">
+        <div class="confirm-icon"><i class="fa-solid fa-rotate-right" style="color:#f59e0b;"></i></div>
+        <div class="confirm-title">Làm mới hóa đơn?</div>
+        <div class="confirm-msg">Toàn bộ mục trong hóa đơn hiện tại sẽ bị xóa.</div>
+        <div class="confirm-actions">
+            <button class="btn-cancel-confirm" onclick="closeResetModal()"><i class="fa-solid fa-arrow-left me-1"></i>Quay lại</button>
+            <button class="btn-do-confirm" onclick="doResetBill()">Làm mới</button>
+        </div>
+    </div>
+</div>
+
+<!-- ── TAB: Thu ngân ─────────────────────────────── -->
+<div id="tab-thungan" class="tab-pane show active pos-grid">
+
+    <!-- VÙNG A: Chọn dịch vụ -->
+    <div class="zone-menu">
+        <div class="zone-menu-header">
+            <div class="d-flex align-items-center justify-content-between gap-2 mb-2 flex-wrap">
+                <div class="cat-pills">
+                    <div class="cat-pill active" onclick="filterCat(this,'all')">Tất cả</div>
+                    <div class="cat-pill" onclick="filterCat(this,'service')"><i class="fa-solid fa-scissors me-1" style="font-size:10px;"></i>Dịch vụ</div>
+                    <div class="cat-pill" onclick="filterCat(this,'product')"><i class="fa-solid fa-box me-1" style="font-size:10px;"></i>Sản phẩm</div>
+                </div>
+                <div class="search-box">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" placeholder="Tìm nhanh..." oninput="filterSearch(this.value)">
+                </div>
+            </div>
+        </div>
+        <div class="zone-menu-scroll">
+            <div class="service-grid" id="serviceGrid">
+                <div class="svc-card" data-cat="service" data-name="Cắt tóc nam" data-price="100000" onclick="addItem(this)">
+                    <div class="svc-icon"><i class="fa-solid fa-scissors"></i></div>
+                    <div class="svc-name">Cắt tóc nam</div>
+                    <div class="svc-price">100.000đ</div>
+                </div>
+                <div class="svc-card" data-cat="service" data-name="Combo Cắt Gội" data-price="150000" onclick="addItem(this)">
+                    <div class="svc-icon"><i class="fa-solid fa-shower"></i></div>
+                    <div class="svc-name">Combo Cắt Gội</div>
+                    <div class="svc-price">150.000đ</div>
+                </div>
+                <div class="svc-card" data-cat="service" data-name="Uốn tóc" data-price="300000" onclick="addItem(this)">
+                    <div class="svc-icon"><i class="fa-solid fa-wind"></i></div>
+                    <div class="svc-name">Uốn tóc</div>
+                    <div class="svc-price">300.000đ</div>
+                </div>
+                <div class="svc-card" data-cat="service" data-name="Nhuộm tóc" data-price="350000" onclick="addItem(this)">
+                    <div class="svc-icon"><i class="fa-solid fa-palette"></i></div>
+                    <div class="svc-name">Nhuộm tóc</div>
+                    <div class="svc-price">350.000đ</div>
+                </div>
+                <div class="svc-card" data-cat="service" data-name="Cạo mặt" data-price="80000" onclick="addItem(this)">
+                    <div class="svc-icon"><i class="fa-solid fa-user-tie"></i></div>
+                    <div class="svc-name">Cạo mặt</div>
+                    <div class="svc-price">80.000đ</div>
+                </div>
+                <div class="svc-card" data-cat="service" data-name="Gội đầu" data-price="60000" onclick="addItem(this)">
+                    <div class="svc-icon"><i class="fa-solid fa-droplet"></i></div>
+                    <div class="svc-name">Gội đầu</div>
+                    <div class="svc-price">60.000đ</div>
+                </div>
+                <div class="svc-card" data-cat="product" data-name="Sáp Volcanic Clay" data-price="250000" onclick="addItem(this)">
+                    <div class="svc-icon" style="background:#f0fdf4;color:#15803d;"><i class="fa-solid fa-jar"></i></div>
+                    <div class="svc-name">Sáp Volcanic Clay</div>
+                    <div class="svc-price">250.000đ</div>
+                </div>
+                <div class="svc-card" data-cat="product" data-name="Gôm xịt tóc" data-price="120000" onclick="addItem(this)">
+                    <div class="svc-icon" style="background:#f0fdf4;color:#15803d;"><i class="fa-solid fa-spray-can"></i></div>
+                    <div class="svc-name">Gôm xịt tóc</div>
+                    <div class="svc-price">120.000đ</div>
+                </div>
+                <div class="svc-card" data-cat="product" data-name="Dầu gội Argan" data-price="180000" onclick="addItem(this)">
+                    <div class="svc-icon" style="background:#f0fdf4;color:#15803d;"><i class="fa-solid fa-bottle-droplet"></i></div>
+                    <div class="svc-name">Dầu gội Argan</div>
+                    <div class="svc-price">180.000đ</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- VÙNG B: Hóa đơn -->
+    <div class="zone-bill">
+        <div class="bill-header">
+            <div class="bill-header-title">
+                <i class="fa-solid fa-file-invoice-dollar" style="color:var(--gold);"></i> Hóa đơn
+            </div>
+            <button class="btn-reset-bill" onclick="openResetModal()">
+                <i class="fa-solid fa-rotate-right me-1"></i>Làm mới
+            </button>
+        </div>
+
+        <div class="barber-section">
+            <div class="field-label"><i class="fa-solid fa-user-tie me-1"></i>Thợ thực hiện</div>
+            <select class="barber-select" id="barberSelect">
+                <option value="">-- Chọn Barber --</option>
+                <option value="1">✅ Anh Tú (Đang rảnh)</option>
+                <option value="2" disabled>🔴 Trọng Nghĩa (Đang bận)</option>
+                <option value="3">✅ Minh Chiến (Đang rảnh)</option>
+            </select>
+        </div>
+
+        <div class="bill-items" id="billItems">
+            <div class="bill-empty" id="billEmpty">
+                <i class="fa-regular fa-file-lines"></i>
+                <span>Chưa có mục nào</span>
+                <span style="font-size:11px;color:#e2e8f0;">Chọn dịch vụ bên trái</span>
+            </div>
+        </div>
+
+        <div class="bill-total-section">
+            <div class="subtotal-row">
+                <span>Tạm tính (<span id="itemCount">0</span> mục)</span>
+                <span id="subtotalDisplay">0đ</span>
+            </div>
+            <div class="subtotal-row" style="color:var(--danger);">
+                <span>Chiết khấu</span><span>–0đ</span>
+            </div>
+            <div class="total-display">
+                <div class="total-label">Khách phải trả</div>
+                <div class="total-amount" id="totalDisplay">0đ</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- VÙNG C: Thanh toán -->
+    <div class="zone-pay">
+        <div class="pay-header">
+            <i class="fa-solid fa-hand-holding-dollar me-2" style="color:var(--gold);"></i>Thanh toán
+        </div>
+
+        <div class="customer-section">
+            <div class="field-label">Khách hàng (tuỳ chọn)</div>
+            <input type="text" class="cust-input" placeholder="Họ tên khách...">
+            <input type="tel" class="cust-input" placeholder="Số điện thoại...">
+        </div>
+
+        <div class="pay-methods">
+            <div class="field-label">Phương thức</div>
+            <button class="pay-method-btn" data-method="cash" onclick="selectPayMethod(this)">
+                <i class="fa-solid fa-money-bill-wave" style="color:#16a34a;"></i> Tiền mặt
+            </button>
+            <button class="pay-method-btn" data-method="transfer" onclick="selectPayMethod(this)">
+                <i class="fa-solid fa-mobile-screen" style="color:#0284c7;"></i> Chuyển khoản
+            </button>
+            <button class="pay-method-btn" data-method="card" onclick="selectPayMethod(this)">
+                <i class="fa-solid fa-credit-card" style="color:#7c3aed;"></i> Thẻ ngân hàng
+            </button>
+        </div>
+
+        <!-- Preview xác nhận trước khi bấm -->
+        <div class="pay-preview" id="payPreview">
+            <div class="pay-preview-label" id="payPreviewLabel">Thu tiền mặt</div>
+            <div class="pay-preview-amount" id="payPreviewAmount">0đ</div>
+        </div>
+
+        <div class="pay-confirm-area">
+            <button class="btn-confirm-pay" id="btnConfirmPay" disabled onclick="confirmPayment()">
+                <i class="fa-solid fa-check-circle"></i> XÁC NHẬN THANH TOÁN
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- TAB: Lịch hẹn -->
+<div class="tab-pane" id="tab-lichhen">
+    <div class="tab-scroll-wrapper">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+                <h5 class="fw-bold mb-0"><i class="fa-regular fa-calendar-days text-primary me-2"></i>Quản lý Lịch hẹn</h5>
+                <small class="text-muted">Kiểm soát lịch khách đặt online và trực tiếp</small>
+            </div>
+            <div class="d-flex gap-2 align-items-center">
+                <input type="date" class="form-control form-control-sm" value="@DateTime.Now.ToString("yyyy-MM-dd")" style="width:150px;">
+                <button class="btn btn-sm btn-dark px-3">Hôm nay</button>
+                <button class="btn btn-sm btn-warning fw-bold text-dark"><i class="fa-solid fa-plus me-1"></i>Tạo lịch</button>
+            </div>
+        </div>
+        <div class="tab-card">
+            <table class="tab-table">
+                <thead><tr>
+                    <th>Giờ hẹn</th><th>Khách hàng</th><th>Dịch vụ</th><th>Barber</th><th>Trạng thái</th><th style="text-align:right;">Hành động</th>
+                </tr></thead>
+                <tbody>
+                    <tr>
+                        <td><span class="badge bg-dark rounded-pill px-3 py-2">09:00</span></td>
+                        <td><div class="fw-bold">Nguyễn Văn A</div><small class="text-muted">0901.234.567</small></td>
+                        <td>Combo Cắt Gội</td>
+                        <td><span class="d-flex align-items-center gap-2"><span style="width:8px;height:8px;border-radius:50%;background:#22c55e;display:inline-block;"></span>Anh Tú</span></td>
+                        <td><span class="status-pill status-waiting"><i class="fa-regular fa-clock"></i> Chờ khách</span></td>
+                        <td style="text-align:right;">
+                            <button class="btn btn-sm btn-success fw-bold rounded-pill px-3 me-1"><i class="fa-solid fa-check me-1"></i>Đã tới</button>
+                            <button class="btn btn-sm btn-light text-danger rounded-circle"><i class="fa-solid fa-xmark"></i></button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- TAB: Khách hàng -->
+<div class="tab-pane" id="tab-khachhang">
+    <div class="tab-scroll-wrapper">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+                <h5 class="fw-bold mb-0"><i class="fa-solid fa-users text-success me-2"></i>Database Khách hàng</h5>
+                <small class="text-muted">Quản lý thông tin và điểm tích lũy</small>
+            </div>
+            <div class="d-flex gap-2">
+                <div class="search-box" style="max-width:260px;"><i class="fa-solid fa-magnifying-glass"></i><input type="text" placeholder="Tìm Tên, SĐT, Mã KH..."></div>
+                <button class="btn btn-sm btn-success fw-bold px-3"><i class="fa-solid fa-user-plus me-1"></i>Đăng ký KH</button>
+            </div>
+        </div>
+        <div class="tab-card">
+            <table class="tab-table">
+                <thead><tr>
+                    <th>Khách hàng</th><th>Liên hệ</th><th>Hạng TV</th><th style="text-align:center;">Điểm</th><th>Lần cuối ghé</th><th style="text-align:right;">Tùy chọn</th>
+                </tr></thead>
+                <tbody>
+                    <tr>
+                        <td><div class="fw-bold">Nguyễn Tiến Đạt</div><small class="text-muted">#KH001</small></td>
+                        <td>0941.462.256</td>
+                        <td><span class="status-pill" style="background:#f1f5f9;color:#475569;">Thành viên</span></td>
+                        <td style="text-align:center;"><span class="badge bg-warning text-dark px-2">0</span></td>
+                        <td class="text-muted" style="font-size:12px;">Chưa có</td>
+                        <td style="text-align:right;">
+                            <button class="btn btn-sm btn-light text-primary rounded-circle me-1"><i class="fa-solid fa-clock-rotate-left"></i></button>
+                            <button class="btn btn-sm btn-light text-dark rounded-circle"><i class="fa-solid fa-pen"></i></button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+let billItems = [];
+let deleteTargetId = null;
+let selectedPayMethod = null;
+
+function fmt(n) { return n.toLocaleString('vi-VN') + 'đ'; }
+
+function addItem(card) {
+    const name  = card.dataset.name;
+    const price = parseInt(card.dataset.price);
+    const existing = billItems.find(x => x.id === name);
+    if (existing) { existing.qty++; }
+    else { billItems.push({ id: name, name, price, qty: 1 }); }
+    card.classList.add('just-added');
+    setTimeout(() => card.classList.remove('just-added'), 200);
+    renderBill();
+}
+
+function renderBill() {
+    const container = document.getElementById('billItems');
+    const empty = document.getElementById('billEmpty');
+    if (billItems.length === 0) {
+        container.innerHTML = '';
+        container.appendChild(empty);
+        empty.style.display = 'flex';
+        updateTotal(); return;
+    }
+    empty.style.display = 'none';
+    container.innerHTML = billItems.map(item => `
+        <div class="bill-row">
+            <div class="bill-row-info"><div class="item-name">${item.name}</div></div>
+            <div class="qty-stepper">
+                <button class="qty-btn" onclick="changeQty('${item.id}',-1)">−</button>
+                <span class="qty-val">${item.qty}</span>
+                <button class="qty-btn" onclick="changeQty('${item.id}',1)">+</button>
+            </div>
+            <div class="bill-row-price">${fmt(item.price * item.qty)}</div>
+            <button class="btn-del-item" onclick="askDeleteItem('${item.id}','${item.name}')"><i class="fa-solid fa-trash-can"></i></button>
+        </div>`).join('');
+    updateTotal();
+    updateConfirmButton();
+}
+
+function changeQty(id, delta) {
+    const item = billItems.find(x => x.id === id);
+    if (!item) return;
+    item.qty += delta;
+    if (item.qty <= 0) { askDeleteItem(id, item.name); return; }
+    renderBill();
+}
+
+function askDeleteItem(id, name) {
+    deleteTargetId = id;
+    document.getElementById('deleteModalMsg').textContent = `Bạn sẽ xóa "${name}" khỏi hóa đơn.`;
+    document.getElementById('doDeleteBtn').onclick = doDeleteItem;
+    document.getElementById('deleteModal').classList.add('open');
+}
+function closeDeleteModal() { document.getElementById('deleteModal').classList.remove('open'); deleteTargetId = null; }
+function doDeleteItem() { billItems = billItems.filter(x => x.id !== deleteTargetId); closeDeleteModal(); renderBill(); }
+
+function openResetModal() { document.getElementById('resetModal').classList.add('open'); }
+function closeResetModal() { document.getElementById('resetModal').classList.remove('open'); }
+function doResetBill() {
+    billItems = []; selectedPayMethod = null;
+    document.querySelectorAll('.pay-method-btn').forEach(b => b.classList.remove('selected'));
+    document.getElementById('payPreview').classList.remove('visible');
+    document.getElementById('barberSelect').value = '';
+    closeResetModal(); renderBill();
+    updateBillStatus(false);
+}
+
+function updateTotal() {
+    const total = billItems.reduce((s, x) => s + x.price * x.qty, 0);
+    const count = billItems.reduce((s, x) => s + x.qty, 0);
+    document.getElementById('totalDisplay').textContent = fmt(total);
+    document.getElementById('subtotalDisplay').textContent = fmt(total);
+    document.getElementById('itemCount').textContent = count;
+    if (selectedPayMethod) document.getElementById('payPreviewAmount').textContent = fmt(total);
+    updateBillStatus(billItems.length > 0);
+}
+
+function updateBillStatus(hasItems) {
+    const badge = document.getElementById('global-bill-status');
+    if (!badge) return;
+    if (hasItems) {
+        badge.className = 'bill-status-badge drafting';
+        badge.innerHTML = '<i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i>Đang lập hóa đơn';
+    } else {
+        badge.className = 'bill-status-badge';
+        badge.style.cssText = 'background:#f1f5f9;color:#64748b;border:1px solid #e2e8f0;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;letter-spacing:0.5px;text-transform:uppercase;';
+        badge.innerHTML = '<i class="fa-regular fa-circle me-1" style="font-size:8px;"></i>Chưa có hóa đơn';
+    }
+}
+
+function selectPayMethod(btn) {
+    document.querySelectorAll('.pay-method-btn').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    selectedPayMethod = btn.dataset.method;
+    const labels = { cash:'Thu tiền mặt', transfer:'Thu chuyển khoản', card:'Thu qua thẻ' };
+    const total = billItems.reduce((s, x) => s + x.price * x.qty, 0);
+    document.getElementById('payPreviewLabel').textContent = labels[selectedPayMethod];
+    document.getElementById('payPreviewAmount').textContent = fmt(total);
+    document.getElementById('payPreview').classList.add('visible');
+    updateConfirmButton();
+}
+
+function updateConfirmButton() {
+    const ok = billItems.length > 0 && selectedPayMethod !== null;
+    document.getElementById('btnConfirmPay').disabled = !ok;
+}
+
+function confirmPayment() {
+    const total = billItems.reduce((s, x) => s + x.price * x.qty, 0);
+    const method = { cash:'Tiền mặt', transfer:'Chuyển khoản', card:'Thẻ' }[selectedPayMethod];
+    alert(`✅ Thanh toán thành công!\nTổng: ${fmt(total)}\nPhương thức: ${method}`);
+    doResetBill();
+    const badge = document.getElementById('global-bill-status');
+    if (badge) {
+        badge.className = 'bill-status-badge paid';
+        badge.innerHTML = '<i class="fa-solid fa-circle-check me-1" style="font-size:8px;"></i>Đã thanh toán';
+    }
+    setTimeout(() => updateBillStatus(false), 3000);
+}
+
+function filterCat(pill, cat) {
+    document.querySelectorAll('.cat-pill').forEach(p => p.classList.remove('active'));
+    pill.classList.add('active');
+    document.querySelectorAll('.svc-card').forEach(c => {
+        c.style.display = (cat === 'all' || c.dataset.cat === cat) ? '' : 'none';
+    });
+}
+
+function filterSearch(q) {
+    const lower = q.toLowerCase();
+    document.querySelectorAll('.svc-card').forEach(c => {
+        c.style.display = c.dataset.name.toLowerCase().includes(lower) ? '' : 'none';
+    });
+}
+
+document.getElementById('barberSelect').addEventListener('change', updateConfirmButton);
+updateTotal();
+updateBillStatus(false);
+</script>
+}
